@@ -2,6 +2,7 @@
 
 import pdb
 
+import sys
 import requests
 from bs4 import BeautifulSoup
 
@@ -12,12 +13,20 @@ CAUSE_URLS = ["https://www.google.org/our-work/education/",
 
 
 def main():
-    with open("education.html", "r") as f:
-        soup = BeautifulSoup(f, "lxml")
+    fieldnames = ["FIXME"]
+    writer = csv.DictWriter(sys.stdout, fieldnames=fieldnames)
+    writer.writeheader()
+    for cause_url in CAUSE_URLS:
+        for grant in cause_grants(cause_url):
+            writer.writerow(grant)
+
+
+def cause_grants(cause_url):
+        soup = BeautifulSoup(requests.get(cause_url), "lxml")
         grants = []
 
         grant_urls = []
-        prefix = "education"
+        prefix = cause_url.split('/')[-2]
         for link in soup.find_all("a"):
             if str(link.get("href")).startswith("/our-work/" + prefix + "/"):
                 grant_url = "https://www.google.org" + link.get("href")
