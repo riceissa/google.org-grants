@@ -2,6 +2,7 @@
 
 import pdb
 
+import csv
 import sys
 import requests
 from bs4 import BeautifulSoup
@@ -11,9 +12,15 @@ CAUSE_URLS = ["https://www.google.org/our-work/education/",
               "https://www.google.org/our-work/inclusion/",
               "https://www.google.org/our-work/crisis-response/"]
 
+HEADERS = {'User-Agent': 'Mozilla/5.0 '
+           '(X11; Linux x86_64) AppleWebKit/537.36 '
+           '(KHTML, like Gecko) '
+           'Chrome/63.0.3239.132 Safari/537.36'}
+
 
 def main():
-    fieldnames = ["FIXME"]
+    fieldnames = ["grantee", "description", "Funding began in",
+                  "Total funding", "Focus", "Region of Impact"]
     writer = csv.DictWriter(sys.stdout, fieldnames=fieldnames)
     writer.writeheader()
     for cause_url in CAUSE_URLS:
@@ -22,7 +29,8 @@ def main():
 
 
 def cause_grants(cause_url):
-        soup = BeautifulSoup(requests.get(cause_url), "lxml")
+        soup = BeautifulSoup(requests.get(cause_url, headers=HEADERS).content,
+                             "lxml")
         grants = []
 
         grant_urls = []
@@ -44,13 +52,15 @@ def cause_grants(cause_url):
             for key, val in zip(grantee.find_all("dt"), grantee.find_all("dd")):
                 grantee_dict[key.text] = val.text
             grants.append(grantee_dict)
-        pdb.set_trace()
+        # pdb.set_trace()
+        return grants
 
 
 def grant_info(grant_url):
-    soup = BeautifulSoup(requests.get(grant_url).content, "lxml")
+    soup = BeautifulSoup(requests.get(grant_url, headers=HEADERS).content,
+                         "lxml")
     grantee_dict = {"grantee": soup.find("h1").text.strip()}
-    for key, val in zip(grantee.find_all("dt"), grantee.find_all("dd")):
+    for key, val in zip(soup.find_all("dt"), soup.find_all("dd")):
         grantee_dict[key.text] = val.text
     return grantee_dict
 
