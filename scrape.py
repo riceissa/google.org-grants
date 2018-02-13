@@ -29,31 +29,31 @@ def main():
 
 
 def cause_grants(cause_url):
-        soup = BeautifulSoup(requests.get(cause_url, headers=HEADERS).content,
-                             "lxml")
-        grants = []
+    soup = BeautifulSoup(requests.get(cause_url, headers=HEADERS).content,
+                         "lxml")
+    grants = []
 
-        grant_urls = []
-        prefix = cause_url.split('/')[-2]
-        for link in soup.find_all("a"):
-            if str(link.get("href")).startswith("/our-work/" + prefix + "/"):
-                grant_url = "https://www.google.org" + link.get("href")
-                if grant_url not in grant_urls:
-                    grant_urls.append(grant_url)
+    grant_urls = []
+    prefix = cause_url.split('/')[-2]
+    for link in soup.find_all("a"):
+        if str(link.get("href")).startswith("/our-work/" + prefix + "/"):
+            grant_url = "https://www.google.org" + link.get("href")
+            if grant_url not in grant_urls:
+                grant_urls.append(grant_url)
 
-        for grant_url in grant_urls:
-            grants.append(grant_info(grant_url))
+    for grant_url in grant_urls:
+        grants.append(grant_info(grant_url))
 
-        for grantee in soup.find_all("section", {"class": "single-accordion--static"}):
-            grantee_dict = {"grantee": grantee.find("h3").text.strip(),
-                            "description": grantee.find("p",
-                                {"class": "single-accordion__description"})
-                                .text.strip()}
-            for key, val in zip(grantee.find_all("dt"), grantee.find_all("dd")):
-                grantee_dict[key.text] = val.text
-            grants.append(grantee_dict)
-        # pdb.set_trace()
-        return grants
+    for grantee in soup.find_all("section", {"class": "single-accordion--static"}):
+        grantee_dict = {"grantee": grantee.find("h3").text.strip(),
+                        "description": grantee.find("p",
+                            {"class": "single-accordion__description"})
+                            .text.strip()}
+        for key, val in zip(grantee.find_all("dt"), grantee.find_all("dd")):
+            grantee_dict[key.text] = val.text
+        grants.append(grantee_dict)
+    # pdb.set_trace()
+    return grants
 
 
 def grant_info(grant_url):
