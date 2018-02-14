@@ -34,9 +34,11 @@ def cause_grants(cause_url):
     grants = []
 
     grant_urls = []
-    prefix = cause_url.split('/')[-2]
+    cause = cause_url.split('/')[-2]
     for link in soup.find_all("a"):
-        if str(link.get("href")).startswith("/our-work/" + prefix + "/"):
+        prefix = "/our-work/" + cause + "/"
+        href = str(link.get("href"))
+        if href.startswith(prefix) and href != prefix:
             grant_url = "https://www.google.org" + link.get("href")
             if grant_url not in grant_urls:
                 grant_urls.append(grant_url)
@@ -59,7 +61,10 @@ def cause_grants(cause_url):
 def grant_info(grant_url):
     soup = BeautifulSoup(requests.get(grant_url, headers=HEADERS).content,
                          "lxml")
-    grantee_dict = {"grantee": soup.find("h1").text.strip()}
+    grantee_dict = {"grantee":
+                    soup.find("section",
+                              {"class": "body-content"}).find("h1")
+                                                        .text.strip()}
     for key, val in zip(soup.find_all("dt"), soup.find_all("dd")):
         grantee_dict[key.text] = val.text
     return grantee_dict
